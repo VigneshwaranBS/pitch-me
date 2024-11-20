@@ -1,0 +1,7 @@
+flask
+mediapipe
+tensorflow
+tensorflow_hub
+opencv-python
+moviepy
+speechrecognition

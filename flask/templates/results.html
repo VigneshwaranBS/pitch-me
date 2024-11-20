@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+        .media-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .media-container video,
+        .media-container audio {
+            flex: 1;
+            max-width: 45%;
+            max-height: 45%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .logs-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .log {
+            flex: 1;
+            max-width: 45%;
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            overflow-y: auto;
+            height: 300px;
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+            color: #333;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Processed Video Results</h1>
+
+        <!-- Video and Audio Section -->
+        <div class="media-container">
+            <video controls>
+                <source src="{{ video_path }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <audio controls>
+                <source src="{{ audio_path }}" type="audio/wav">
+                Your browser does not support the audio tag.
+            </audio>
+        </div>
+
+        <!-- Logs Section -->
+        <div class="logs-container">
+            <div class="log">
+                <h2>Action Log</h2>
+                <pre>{{ action_log }}</pre>
+            </div>
+            <div class="log">
+                <h2>Speech Log</h2>
+                <pre>{{ speech_log }}</pre>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
