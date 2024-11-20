@@ -1,4 +1,8 @@
 import os
+
+# Set the path to the ffmpeg executable
+os.environ["IMAGEIO_FFMPEG_EXE"] = "/opt/homebrew/bin/ffmpeg"  # Replace with the actual path to ffmpeg
+
 from flask import Flask, render_template, request, redirect, url_for
 import cv2
 import mediapipe as mp
@@ -8,6 +12,7 @@ import time
 import numpy as np
 import moviepy.editor as mp_editor
 import speech_recognition as sr
+
 
 # Flask setup
 app = Flask(__name__)
