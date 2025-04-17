@@ -1,7 +1,17 @@
 import os
 
 # Set the path to the ffmpeg executable
-os.environ["IMAGEIO_FFMPEG_EXE"] = "/opt/homebrew/bin/ffmpeg"  # Replace with the actual path to ffmpeg
+# os.environ["IMAGEIO_FFMPEG_EXE"] = "/opt/homebrew/bin/ffmpeg"  # Replace with the actual path to ffmpeg
+
+
+# ------------ app.py (only the lines Ruff flagged) ---------------
+
+# ❶ Line 4 – break the assignment across lines
+os.environ[
+    "IMAGEIO_FFMPEG_EXE"
+] = "/opt/homebrew/bin/ffmpeg"  # Replace with the actual path to ffmpeg
+
+
 
 from flask import Flask, render_template, request, redirect, url_for
 import cv2
@@ -146,8 +156,15 @@ def results(filename):
     action_log = open(action_log_path).read() if os.path.exists(action_log_path) else ""
     speech_log = open(speech_log_path).read() if os.path.exists(speech_log_path) else ""
 
-    return render_template("results.html", video_path=video_path, audio_path=audio_path,
-                           action_log=action_log, speech_log=speech_log)
+    
+# ❷ Lines 36, 102–103, 130 – wrap the render_template call & comments
+    return render_template(
+        "results.html",
+        video_path=video_path,
+        audio_path=audio_path,
+        action_log=action_log,
+        speech_log=speech_log,
+    )
 
 # if __name__ == "__main__":
 #     app.run(debug=True)
