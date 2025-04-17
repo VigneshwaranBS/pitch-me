@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pre-commit:
+    name: Pre‑commit checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run all hooks
+        run: pre-commit run --all-files --show-diff-on-failure
+
+  lint:
+    name: Ruff & Black
+    runs-on: ubuntu-latest
+    needs: pre-commit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install ruff black
+      - run: ruff check .
+      - run: black --check .
+
+  typecheck:
+    name: Mypy
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install mypy
+      - run: mypy .
+
+  test:
+    name: Pytest & Coverage (optional)
+    runs-on: ubuntu-latest
+    needs: typecheck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # 1) Count test files
+      - name: Count test files
+        id: count_tests
+        run: |
+          COUNT=$(find . -type f -name "test_*.py" | wc -l)
+          echo "::set-output name=count::$COUNT"
+
+      # 2) Skip if none found
+      - name: Skip tests if none found
+        if: ${{ steps.count_tests.outputs.count == '0' }}
+        run: |
+          echo "🚫 No tests detected; skipping Pytest & coverage."
+          exit 0
+
+      # 3) Install & run tests if tests exist
+      - name: Install test dependencies
+        if: ${{ steps.count_tests.outputs.count != '0' }}
+        run: pip install pytest coverage
+
+      - name: Run Pytest with coverage
+        if: ${{ steps.count_tests.outputs.count != '0' }}
+        run: |
+          coverage run -m pytest
+          coverage report --fail-under=90
+
+  security:
+    name: Security audit
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          pip install pip-audit
+          pip-audit --exit-zero
