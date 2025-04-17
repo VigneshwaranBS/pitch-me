@@ -1,23 +1,45 @@
+# .pre-commit-config.yaml
+# -------------------------------------------------------------------
+# Install the git hooks once with:  pre-commit install
+# Run against the entire repo:      pre-commit run --all-files
+# Keep hooks fresh:                 pre-commit autoupdate
+# -------------------------------------------------------------------
+default_stages: [pre-commit]    # ‘commit’ was renamed in pre‑commit ≥ 4.0
+
 repos:
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.271
-    hooks:
-      - id: ruff
+  # 1️⃣ Code formatter (always run first)
   - repo: https://github.com/ambv/black
-    rev: 24.4.0
+    rev: 25.1.0                 # pin exact release
     hooks:
       - id: black
+        language_version: python3.11   # or whatever you target
+
+  # 2️⃣ Ruff linter / autofix
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.11.5
+    hooks:
+      - id: ruff
+        args: [--fix]           # auto‑apply safe fixes
+        language_version: python3.11
+
+  # 3️⃣ Static typing
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.0
+    rev: v1.15.0
     hooks:
       - id: mypy
-        args: ["--ignore-missing-imports"]
+        args: [--install-types, --non-interactive]
+        language_version: python3.11
+
+  # 4️⃣ Utility hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: forbid-new-submodules
+
+  # 5️⃣ Security scanner
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.0
+    rev: 1.8.3                  # <- valid tag
     hooks:
       - id: bandit
+        args: [-ll]             # show low‑severity issues too (optional)
