@@ -7,10 +7,9 @@ import os
 # ------------ app.py (only the lines Ruff flagged) ---------------
 
 # ❶ Line 4 – break the assignment across lines
-os.environ[
-    "IMAGEIO_FFMPEG_EXE"
-] = "/opt/homebrew/bin/ffmpeg"  # Replace with the actual path to ffmpeg
-
+os.environ["IMAGEIO_FFMPEG_EXE"] = (
+    "/opt/homebrew/bin/ffmpeg"  # Replace with the actual path to ffmpeg
+)
 
 
 from flask import Flask, render_template, request, redirect, url_for
@@ -19,7 +18,6 @@ import mediapipe as mp
 import tensorflow_hub as hub
 import tensorflow as tf
 import time
-import numpy as np
 import moviepy.editor as mp_editor
 import speech_recognition as sr
 
@@ -41,20 +39,27 @@ model = hub.load("https://tfhub.dev/google/yamnet/1")
 action_log = []
 speech_log_file = os.path.join(app.config["UPLOAD_FOLDER"], "speech_log.txt")
 
+
 def allowed_file(filename):
     """Check if the file has a valid extension."""
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
+    )
+
 
 def preprocess_audio(audio_data):
     """Preprocess audio data to fit YAMNet input."""
     audio_tensor = tf.convert_to_tensor(audio_data, dtype=tf.float32)
     return tf.reshape(audio_tensor, [-1])
 
+
 def log_action(action, start_time):
     """Log detected actions with a timestamp."""
     timestamp = time.time() - start_time
     action_log.append((timestamp, action))
     print(f"At {timestamp:.2f} seconds: {action}")
+
 
 def detect_actions(results, start_time):
     """Detect actions based on MediaPipe results."""
@@ -73,12 +78,14 @@ def detect_actions(results, start_time):
         if right_eye_ratio < 0.02:
             log_action("Right eye blinked", start_time)
 
+
 def save_logs():
     """Save action and speech logs."""
     with open(os.path.join(app.config["UPLOAD_FOLDER"], "action_log.txt"), "w") as f:
         for timestamp, action in action_log:
             f.write(f"{timestamp:.2f}: {action}\n")
     print("Action log saved.")
+
 
 def convert_speech_to_text(audio_file):
     """Convert audio data to text using SpeechRecognition and save to a file."""
@@ -92,6 +99,7 @@ def convert_speech_to_text(audio_file):
             print(f"Recognized speech: {text}")
         except Exception as e:
             print(f"Speech recognition failed: {e}")
+
 
 def process_video(video_path, audio_path):
     """Process the uploaded video: extract audio, classify actions, and save logs."""
@@ -109,13 +117,18 @@ def process_video(video_path, audio_path):
             detect_actions(results, start_time)
 
             # Draw landmarks (optional for debugging)
-            mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
-            mp_drawing.draw_landmarks(frame, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION)
+            mp_drawing.draw_landmarks(
+                frame, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS
+            )
+            mp_drawing.draw_landmarks(
+                frame, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION
+            )
 
     finally:
         cap.release()
 
     save_logs()
+
 
 def extract_audio(video_path, output_audio_path):
     """Extract audio from a video."""
@@ -124,6 +137,7 @@ def extract_audio(video_path, output_audio_path):
 
     # Convert speech to text
     convert_speech_to_text(output_audio_path)
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -137,13 +151,16 @@ def index():
             file.save(video_path)
 
             # Process video
-            audio_path = os.path.join(app.config["UPLOAD_FOLDER"], "extracted_audio.wav")
+            audio_path = os.path.join(
+                app.config["UPLOAD_FOLDER"], "extracted_audio.wav"
+            )
             extract_audio(video_path, audio_path)
             process_video(video_path, audio_path)
 
             return redirect(url_for("results", filename=filename))
 
     return render_template("index.html")
+
 
 @app.route("/results/<filename>")
 def results(filename):
@@ -156,8 +173,7 @@ def results(filename):
     action_log = open(action_log_path).read() if os.path.exists(action_log_path) else ""
     speech_log = open(speech_log_path).read() if os.path.exists(speech_log_path) else ""
 
-    
-# ❷ Lines 36, 102–103, 130 – wrap the render_template call & comments
+    # ❷ Lines 36, 102–103, 130 – wrap the render_template call & comments
     return render_template(
         "results.html",
         video_path=video_path,
@@ -166,9 +182,16 @@ def results(filename):
         speech_log=speech_log,
     )
 
+
 # if __name__ == "__main__":
 #     app.run(debug=True)
 
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+if __name__ == "__main__":
+    # Use 127.0.0.1 for development (local access only)
+    # For production, use environment variables to control this
+    import os
+
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host=host, port=port)

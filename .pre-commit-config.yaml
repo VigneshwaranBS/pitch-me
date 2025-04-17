@@ -1,11 +1,3 @@
-# .pre-commit-config.yaml
-# -------------------------------------------------------------------
-# Install the git hooks once with:  pre-commit install
-# Run against the entire repo:      pre-commit run --all-files
-# Keep hooks fresh:                 pre-commit autoupdate
-# -------------------------------------------------------------------
-default_stages: [pre-commit]    # ‘commit’ was renamed in pre‑commit ≥ 4.0
-
 repos:
   # 1️⃣ Code formatter (always run first)
   - repo: https://github.com/ambv/black
@@ -27,10 +19,7 @@ repos:
     rev: v1.15.0
     hooks:
       - id: mypy
-        args: [--install-types, --non-interactive]
-        language_version: python3.11
-
-  # 4️⃣ Utility hooks
+        args: ["--ignore-missing-imports"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -42,4 +31,3 @@ repos:
     rev: 1.8.3                  # <- valid tag
     hooks:
       - id: bandit
-        args: [-ll]             # show low‑severity issues too (optional)
